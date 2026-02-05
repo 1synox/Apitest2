@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BGMI Name Verifier</title>
+    <style>
+        body { font-family: sans-serif; background: #121212; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .box { background: #1e1e1e; padding: 30px; border-radius: 15px; box-shadow: 0 0 20px rgba(0,0,0,0.5); width: 320px; text-align: center; }
+        input { width: 100%; padding: 12px; margin: 15px 0; border-radius: 5px; border: 1px solid #333; background: #252525; color: white; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #00c853; border: none; color: white; font-weight: bold; border-radius: 5px; cursor: pointer; }
+        #result { margin-top: 20px; padding: 10px; border-radius: 5px; display: none; word-break: break-all; }
+        .loading { color: #ffeb3b; }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2>BGMI Verifier</h2>
+    <input type="number" id="uid" placeholder="Enter BGMI UID">
+    <button onclick="verifyID()" id="btn">Verify Name</button>
+    <div id="result"></div>
+</div>
+
+<script>
+async function verifyID() {
+    const uid = document.getElementById('uid').value;
+    const btn = document.getElementById('btn');
+    const res = document.getElementById('result');
+
+    if(!uid) return alert("UID toh dalo bhai!");
+
+    // Aapke New Credentials
+    const dev_num = "MH7lxT1l0aWEz4TwY0rNrC6xePe2";
+    const api_key = "hMRPpiE6Nii73Yye1pgWaXOtzGo4l6";
+
+    btn.disabled = true;
+    btn.innerText = "Checking...";
+    res.style.display = "block";
+    res.className = "loading";
+    res.innerText = "Processing... Please wait";
+
+    try {
+        // Updated Endpoint URL
+        const targetUrl = `https://www.hlgamingofficial.com/api/index.php?dev_num=${dev_num}&key=${api_key}&uid=${uid}`;
+        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
+
+        const response = await fetch(proxyUrl);
+        const wrapper = await response.json();
+        const data = JSON.parse(wrapper.contents);
+
+        if(data.status === "success" || data.name) {
+            res.style.color = "#00c853";
+            res.innerText = "Player: " + (data.name || data.player_name);
+        } else {
+            res.style.color = "#ff5252";
+            res.innerText = data.msg || "Error: UID Invalid ya API offline hai";
+        }
+    } catch (err) {
+        res.style.color = "#ff5252";
+        res.innerText = "Failed! Server response nahi de raha.";
+        console.log(err);
+    } finally {
+        btn.disabled = false;
+        btn.innerText = "Verify Name";
+    }
+}
+</script>
+
+</body>
+</html>
